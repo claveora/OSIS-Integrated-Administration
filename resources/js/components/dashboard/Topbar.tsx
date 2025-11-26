@@ -1,0 +1,66 @@
+import React from 'react';
+import { Menu, Bell } from 'lucide-react';
+
+interface TopbarProps {
+    onMenuClick: () => void;
+}
+
+const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
+    const user = { name: 'Admin', role: { name: 'Admin' } };
+
+    return (
+        <header className="bg-white border-b-2 border-[#E8DCC3] px-6 py-4 sticky top-0 z-30 shadow-sm backdrop-blur-sm bg-white/95">
+            <div className="flex items-center justify-between">
+                {/* Left Section */}
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={onMenuClick}
+                        className="lg:hidden text-[#3B4D3A] hover:bg-[#E8DCC3] p-2 rounded-lg transition-all duration-200 hover:scale-110"
+                        aria-label="Toggle Menu"
+                    >
+                        <Menu className="w-6 h-6" />
+                    </button>
+                    <div>
+                        <h2 className="text-2xl font-bold text-[#3B4D3A]">
+                            {document.title.replace(' - OSISVISKA', '') || 'Dashboard'}
+                        </h2>
+                        <p className="text-xs text-[#6E8BA3] mt-0.5 font-medium hidden sm:block">
+                            Sistem Manajemen OSIS
+                        </p>
+                    </div>
+                </div>
+
+                {/* Right Section */}
+                <div className="flex items-center gap-4">
+                    {/* Notifications */}
+                    <button 
+                        className="relative p-2.5 text-[#6E8BA3] hover:text-[#3B4D3A] hover:bg-[#E8DCC3] rounded-xl transition-all duration-200 hover:scale-110 group"
+                        aria-label="Notifications"
+                    >
+                        <Bell className="w-5 h-5" />
+                        <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white animate-pulse" />
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                            3
+                        </span>
+                    </button>
+
+                    {/* Divider */}
+                    <div className="hidden sm:block w-px h-8 bg-[#E8DCC3]"></div>
+
+                    {/* User Profile */}
+                    <div className="flex items-center gap-3 bg-[#E8DCC3] rounded-xl px-3 py-2 hover:bg-[#d5c9b0] transition-colors cursor-pointer group">
+                        <div className="text-right hidden sm:block">
+                            <p className="text-sm font-bold text-[#3B4D3A]">{user?.name}</p>
+                            <p className="text-xs text-[#6E8BA3] font-medium">{user?.role?.name}</p>
+                        </div>
+                        <div className="w-10 h-10 bg-[#3B4D3A] rounded-full flex items-center justify-center text-[#E8DCC3] font-bold text-lg shadow-md ring-2 ring-[#6E8BA3]/30 group-hover:ring-[#3B4D3A] transition-all">
+                            {user?.name.charAt(0).toUpperCase()}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+    );
+};
+
+export default Topbar;

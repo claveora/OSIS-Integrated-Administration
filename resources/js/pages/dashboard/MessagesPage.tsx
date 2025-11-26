@@ -1,0 +1,322 @@
+import React, { useState } from 'react';
+import { Head, router } from '@inertiajs/react';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import { Search, Mail, MailOpen, Archive, Eye } from 'lucide-react';
+import type { Message } from '@/types';
+import Swal from 'sweetalert2';
+import api from '@/lib/axios';
+
+interface MessagesPageProps {
+    messages: Message[];
+}
+
+const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }) => {
+    const [messages, setMessages] = useState<Message[]>(initialMessages || []);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filterStatus, setFilterStatus] = useState<string>('');
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [viewingMessage, setViewingMessage] = useState<Message | null>(null);
+
+    const filteredMessages = messages.filter(message => {
+        const matchesSearch = message.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            message.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            message.subject.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesStatus = !filterStatus || message.status === filterStatus;
+        return matchesSearch && matchesStatus;
+    });
+
+    const handleViewMessage = async (message: Message) => {
+        setViewingMessage(message);
+        setShowDetailModal(true);
+
+        // Mark as read if unread
+        if (message.status === 'unread') {
+            try {
+                await api.put(`/messages/${message.id}/status`, { status: 'read' });
+                router.reload({ only: ['messages'] });
+            } catch (error) {
+                console.error('Failed to mark as read:', error);
+            }
+        }
+    };
+
+    const handleUpdateStatus = async (messageId: number, status: 'read' | 'archived') => {
+        try {
+            await api.put(`/messages/${messageId}/status`, { status });
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: `Pesan berhasil ditandai sebagai ${status === 'read' ? 'dibaca' : 'diarsipkan'}`,
+                confirmButtonColor: '#3B4D3A',
+                timer: 1500,
+            });
+            router.reload();
+        } catch (error: any) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: error.response?.data?.message || 'Terjadi kesalahan',
+                confirmButtonColor: '#3B4D3A',
+            });
+        }
+    };
+
+    const getStatusBadge = (status: string) => {
+        switch (status) {
+            case 'unread':
+                return 'bg-red-100 text-red-700 border-red-300';
+            case 'read':
+                return 'bg-blue-100 text-blue-700 border-blue-300';
+            case 'archived':
+                return 'bg-gray-100 text-gray-700 border-gray-300';
+            default:
+                return 'bg-gray-100 text-gray-700 border-gray-300';
+        }
+    };
+
+    const getStatusLabel = (status: string) => {
+        switch (status) {
+            case 'unread': return 'Belum Dibaca';
+            case 'read': return 'Dibaca';
+            case 'archived': return 'Diarsipkan';
+            default: return status;
+        }
+    };
+
+    return (
+        <>
+            <Head title="Pesan - OSINTRA" />
+            <DashboardLayout>
+                <div className="p-8 space-y-6">
+                    {/* Header */}
+                    <div>
+                        <h1 className="text-3xl font-bold text-[#3B4D3A]">Pesan Masuk</h1>
+                        <p className="text-[#6E8BA3] mt-1">Kelola pesan dari halaman publik</p>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-red-50 rounded-xl">
+                                    <Mail className="w-6 h-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-[#6E8BA3]">Belum Dibaca</p>
+                                    <p className="text-2xl font-bold text-[#3B4D3A]">
+                                        {messages.filter(m => m.status === 'unread').length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-blue-50 rounded-xl">
+                                    <MailOpen className="w-6 h-6 text-blue-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-[#6E8BA3]">Dibaca</p>
+                                    <p className="text-2xl font-bold text-[#3B4D3A]">
+                                        {messages.filter(m => m.status === 'read').length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-gray-500">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-gray-50 rounded-xl">
+                                    <Archive className="w-6 h-6 text-gray-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-[#6E8BA3]">Diarsipkan</p>
+                                    <p className="text-2xl font-bold text-[#3B4D3A]">
+                                        {messages.filter(m => m.status === 'archived').length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Filters */}
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6E8BA3]" />
+                                <input
+                                    type="text"
+                                    placeholder="Cari pesan..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full pl-12 pr-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                />
+                            </div>
+
+                            <select
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value)}
+                                className="px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                            >
+                                <option value="">Semua Status</option>
+                                <option value="unread">Belum Dibaca</option>
+                                <option value="read">Dibaca</option>
+                                <option value="archived">Diarsipkan</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Messages Table */}
+                    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-[#E8DCC3]">
+                                    <tr>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Tanggal</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Nama</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Email</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Subjek</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Status</th>
+                                        <th className="px-6 py-4 text-center text-sm font-bold text-[#3B4D3A]">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {filteredMessages.map((message) => (
+                                        <tr
+                                            key={message.id}
+                                            className={`hover:bg-[#F5F5F5] transition-colors ${
+                                                message.status === 'unread' ? 'bg-red-50/30' : ''
+                                            }`}
+                                        >
+                                            <td className="px-6 py-4 text-[#6E8BA3]">
+                                                {new Date(message.created_at).toLocaleDateString('id-ID')}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`font-semibold ${
+                                                    message.status === 'unread' ? 'text-[#1E1E1E]' : 'text-[#6E8BA3]'
+                                                }`}>
+                                                    {message.name}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-[#6E8BA3]">{message.email}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`${
+                                                    message.status === 'unread' ? 'font-semibold text-[#1E1E1E]' : 'text-[#6E8BA3]'
+                                                }`}>
+                                                    {message.subject}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide border ${getStatusBadge(message.status)}`}>
+                                                    {getStatusLabel(message.status)}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <button
+                                                        onClick={() => handleViewMessage(message)}
+                                                        className="p-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all"
+                                                        title="Lihat Detail"
+                                                    >
+                                                        <Eye className="w-4 h-4" />
+                                                    </button>
+                                                    {message.status !== 'archived' && (
+                                                        <button
+                                                            onClick={() => handleUpdateStatus(message.id, 'archived')}
+                                                            className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-all"
+                                                            title="Arsipkan"
+                                                        >
+                                                            <Archive className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {filteredMessages.length === 0 && (
+                            <div className="p-12 text-center">
+                                <Mail className="w-16 h-16 text-[#6E8BA3] mx-auto mb-4" />
+                                <p className="text-[#6E8BA3] text-lg font-medium">Tidak ada pesan ditemukan</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Detail Modal */}
+                {showDetailModal && viewingMessage && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 my-8">
+                            <div className="flex items-start justify-between mb-6">
+                                <div className="flex-1">
+                                    <h2 className="text-2xl font-bold text-[#3B4D3A] mb-2">{viewingMessage.subject}</h2>
+                                    <span className={`inline-block px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide border ${getStatusBadge(viewingMessage.status)}`}>
+                                        {getStatusLabel(viewingMessage.status)}
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() => setShowDetailModal(false)}
+                                    className="text-[#6E8BA3] hover:text-[#3B4D3A] text-2xl font-bold ml-4"
+                                >
+                                    ×
+                                </button>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-2 gap-4 p-4 bg-[#F5F5F5] rounded-xl">
+                                    <div>
+                                        <p className="text-sm font-semibold text-[#6E8BA3] mb-1">Dari</p>
+                                        <p className="font-semibold text-[#1E1E1E]">{viewingMessage.name}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-[#6E8BA3] mb-1">Email</p>
+                                        <p className="text-[#1E1E1E]">{viewingMessage.email}</p>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <p className="text-sm font-semibold text-[#6E8BA3] mb-1">Tanggal</p>
+                                        <p className="text-[#1E1E1E]">
+                                            {new Date(viewingMessage.created_at).toLocaleString('id-ID')}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-lg font-bold text-[#3B4D3A] mb-3">Pesan</h3>
+                                    <div className="p-4 bg-[#F5F5F5] rounded-xl">
+                                        <p className="text-[#1E1E1E] whitespace-pre-wrap">{viewingMessage.message}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-3">
+                                    {viewingMessage.status !== 'archived' && (
+                                        <button
+                                            onClick={() => {
+                                                handleUpdateStatus(viewingMessage.id, 'archived');
+                                                setShowDetailModal(false);
+                                            }}
+                                            className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all font-semibold flex items-center justify-center gap-2"
+                                        >
+                                            <Archive className="w-5 h-5" />
+                                            Arsipkan
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => setShowDetailModal(false)}
+                                        className="flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold"
+                                    >
+                                        Tutup
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </DashboardLayout>
+        </>
+    );
+};
+
+export default MessagesPage;
