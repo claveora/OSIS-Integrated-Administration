@@ -84,7 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                             </div>
                             <div className="hidden sm:block">
                                 <p className="text-sm text-[#E8DCC3]/90 font-semibold">OSINTRA</p>
-                                <p className="text-xs text-[#E8DCC3]/60">Management System</p>
+                                <p className="text-xs text-[#E8DCC3]/60">Management Internal System</p>
                             </div>
                         </div>
                         <button
