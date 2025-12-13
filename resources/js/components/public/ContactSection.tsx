@@ -50,7 +50,7 @@ const ContactSection: React.FC = () => {
 
                 <div className="grid md:grid-cols-2 gap-12">
                     {/* Contact Info */}
-                    <div className="space-y-6">
+                    <div className="space-y-6 ">
                         <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
                             <div className="flex items-start gap-4">
                                 <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
@@ -101,7 +101,9 @@ const ContactSection: React.FC = () => {
                                     value={formData.name}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all bg-white"
+                                    className="w-full px-4 py-3 border rounded-xl transition-all bg-white
+                                            focus:outline focus:outline-2 focus:outline-[#E8DCC3]
+                                            focus:border-transparent"
                                     style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
                                     placeholder="Nama lengkap Anda"
                                 />
@@ -117,7 +119,9 @@ const ContactSection: React.FC = () => {
                                     value={formData.email}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all bg-white"
+                                    className="w-full px-4 py-3 border rounded-xl transition-all bg-white
+                                            focus:outline focus:outline-2 focus:outline-[#E8DCC3]
+                                            focus:border-transparent"
                                     style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
                                     placeholder="email@example.com"
                                 />
@@ -133,7 +137,9 @@ const ContactSection: React.FC = () => {
                                     value={formData.subject}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all bg-white"
+                                    className="w-full px-4 py-3 border rounded-xl transition-all bg-white
+                                            focus:outline focus:outline-2 focus:outline-[#E8DCC3]
+                                            focus:border-transparent"
                                     style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
                                     placeholder="Subjek pesan"
                                 />
@@ -149,7 +155,9 @@ const ContactSection: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                     rows={5}
-                                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all resize-none bg-white"
+                                    className="w-full px-4 py-3 border rounded-xl transition-all bg-white
+                                            focus:outline focus:outline-2 focus:outline-[#E8DCC3]
+                                            focus:border-transparent"
                                     style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
                                     placeholder="Tulis pesan Anda di sini..."
                                 />
@@ -170,7 +178,7 @@ const ContactSection: React.FC = () => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full px-6 py-4 text-white rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full px-6 py-4 text-white rounded-xl font-semibold hover:scale-105 hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 style={{ backgroundColor: '#3B4D3A' }}
                             >
                                 {loading ? 'Mengirim...' : (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
 
 const FooterSection: React.FC = () => {
     const currentYear = new Date().getFullYear();
@@ -10,7 +10,7 @@ const FooterSection: React.FC = () => {
                 <div className="grid md:grid-cols-3 gap-8 mb-8">
                     {/* About */}
                     <div>
-                        <h3 className="text-2xl font-bold mb-4" style={{ color: '#E8DCC3' }}>OSINTRA</h3>
+                        <h3 className="text-2xl font-bold mb-4 text-white">OSINTRA</h3>
                         <p className="leading-relaxed" style={{ color: '#D0C5B9' }}>
                             Sistem Manajemen OSIS SMKN 6 Surakarta yang modern dan profesional untuk mengelola kegiatan organisasi siswa.
                         </p>
@@ -21,27 +21,27 @@ const FooterSection: React.FC = () => {
                         <h3 className="text-xl font-bold mb-4">Quick Links</h3>
                         <ul className="space-y-2">
                             <li>
-                                <a href="#about" className="transition-colors" style={{ color: '#D0C5B9' }}>
+                                <a href="#about" className="transition-colors text-[#D0C5B9] hover:text-white">
                                     Tentang Kami
                                 </a>
                             </li>
                             <li>
-                                <a href="#divisions" className="transition-colors" style={{ color: '#D0C5B9' }}>
+                                <a href="#divisions" className="transition-colors text-[#D0C5B9] hover:text-white">
                                     Struktur
                                 </a>
                             </li>
                             <li>
-                                <a href="#gallery" className="transition-colors" style={{ color: '#D0C5B9' }}>
+                                <a href="#gallery" className="transition-colors text-[#D0C5B9] hover:text-white">
                                     Galeri
                                 </a>
                             </li>
                             <li>
-                                <a href="#contact" className="transition-colors" style={{ color: '#D0C5B9' }}>
+                                <a href="#contact" className="transition-colors text-[#D0C5B9] hover:text-white">
                                     Kontak
                                 </a>
                             </li>
                             <li>
-                                <a href="/login" className="transition-colors" style={{ color: '#D0C5B9' }}>
+                                <a href="/login" className="transition-colors text-[#D0C5B9] hover:text-white">
                                     Login Dashboard
                                 </a>
                             </li>
@@ -69,40 +69,32 @@ const FooterSection: React.FC = () => {
                 </div>
 
                 {/* Social Media */}
-                <div className="pt-8" style={{ borderTop: '1px solid rgba(232,220,195,0.3)' }}>
+                <div className="pt-8 border-t border-[rgba(232,220,195,0.3)]">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p className="text-sm" style={{ color: '#D0C5B9' }}>
-                            © {currentYear} OSIS SMKN 6 Surakarta. All rights reserved.
+                        <p className="text-sm text-[#D0C5B9]">
+                        © {currentYear} OSIS SMKN 6 Surakarta. All rights reserved.
                         </p>
                         <div className="flex gap-4">
-                            <a
-                                href="#"
-                                className="p-2 rounded-lg transition-all duration-300 hover:bg-opacity-100"
-                                style={{ backgroundColor: 'rgba(232,220,195,0.2)' }}
-                            >
-                                <Facebook className="w-5 h-5 text-white" />
-                            </a>
-                            <a
-                                href="#"
-                                className="p-2 rounded-lg transition-all duration-300 hover:bg-opacity-100"
-                                style={{ backgroundColor: 'rgba(232,220,195,0.2)' }}
-                            >
-                                <Instagram className="w-5 h-5 text-white" />
-                            </a>
-                            <a
-                                href="#"
-                                className="p-2 rounded-lg transition-all duration-300 hover:bg-opacity-100"
-                                style={{ backgroundColor: 'rgba(232,220,195,0.2)' }}
-                            >
-                                <Twitter className="w-5 h-5 text-white" />
-                            </a>
-                            <a
-                                href="#"
-                                className="p-2 rounded-lg transition-all duration-300 hover:bg-opacity-100"
-                                style={{ backgroundColor: 'rgba(232,220,195,0.2)' }}
-                            >
-                                <Youtube className="w-5 h-5 text-white" />
-                            </a>
+                        <a
+                            href="https://www.instagram.com/osis_smkn6ska?igsh=MWcyeDBmc3Uwa3F2YQ=="
+                            className="p-2 rounded-lg transition-all duration-300 bg-[rgba(232,220,195,0.2)] hover:bg-[#D0C5B9]"
+                        >
+                            <Instagram className="w-5 h-5 text-white hover:text-[#3B4D3A]" />
+                        </a>
+                        <a
+                            href="https://www.tiktok.com/@osisviska?is_from_webapp=1&sender_device=pc"
+                            className="p-2 rounded-lg transition-all duration-300 bg-[rgba(232,220,195,0.2)] hover:bg-[#D0C5B9]"
+                        >
+                            <svg className="w-5 h-5 text-white hover:text-[#3B4D3A]" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                            </svg>
+                        </a>
+                        <a
+                            href="https://www.youtube.com/@osissmkviska8875"
+                            className="p-2 rounded-lg transition-all duration-300 bg-[rgba(232,220,195,0.2)] hover:bg-[#D0C5B9]"
+                        >
+                            <Youtube className="w-5 h-5 text-white hover:text-[#3B4D3A]" />
+                        </a>
                         </div>
                     </div>
                 </div>

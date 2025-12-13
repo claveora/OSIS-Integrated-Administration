@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ChevronRight } from 'lucide-react';
 
 const links = [
   { label: 'Beranda', href: '/' },
@@ -13,80 +13,195 @@ const links = [
 const Navbar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
+  const [activeLink, setActiveLink] = useState('/');
 
   useEffect(() => {
-    const onScroll = () => setSolid(window.scrollY > 80);
+    const onScroll = () => setSolid(window.scrollY > 50);
     window.addEventListener('scroll', onScroll);
+    
+    setActiveLink(window.location.pathname);
+    
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const borderColor = 'rgba(232,220,195,0.45)';
+  const isActive = (href: string) => activeLink === href;
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 pointer-events-none bg-white">
-      <div className="max-w-7xl mx-auto px-4 pt-6">
-        <div
-          className="mx-auto pointer-events-auto flex items-center justify-between max-w-[1100px] px-6 py-2 rounded-3xl transition-all duration-300 backdrop-blur-md border shadow-sm"
-          style={{
-            backgroundColor: solid ? 'rgba(255,255,255,0.96)' : 'rgba(255,255,255,0.08)',
-            borderColor,
-            color: solid ? '#3B4D3A' : '#FFFFFF',
-          }}
-        >
-
-          <a href="/" className="font-bold text-lg md:text-2xl" style={{ color: '#3B4D3A' }}>
-            OSINTRA
-          </a>
-
-          <nav className="hidden lg:flex items-center gap-8">
-            {links.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className="transition-colors duration-200 font-medium"
-                style={{ color: '#3B4D3A' }}
-              >
-                {l.label}
-              </a>
-            ))}
-          </nav>
-
-          {/* Button Masuk dihilangkan */}
-
-          <div className="lg:hidden">
-            <button
-              aria-label="Toggle menu"
-              onClick={() => setOpen((v) => !v)}
-              className="p-2"
-              style={{ color: solid ? '#3B4D3A' : '#FFFFFF' }}
+    <>
+      <header 
+        className="fixed inset-x-0 top-0 z-50 transition-all duration-300"
+        style={{
+          backgroundColor: solid ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: `1px solid ${solid ? 'rgba(232,220,195,0.4)' : 'rgba(232,220,195,0.2)'}`,
+          boxShadow: solid ? '0 4px 20px rgba(59, 77, 58, 0.08)' : '0 2px 10px rgba(0, 0, 0, 0.05)'
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <a 
+              href="/" 
+              className="group flex items-center gap-3 font-bold text-xl md:text-2xl transition-transform duration-300 hover:scale-105"
             >
-              {open ? <X size={22} /> : <Menu size={22} />}
-            </button>
-          </div>
-        </div>
-      </div>
+              <div 
+                className="w-10 h-10 rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-all duration-300 shadow-md"
+                style={{ 
+                  background: 'linear-gradient(135deg, #3B4D3A 0%, #2a3729 100%)'
+                }}
+              >
+                <span className="text-white font-bold text-lg">O</span>
+              </div>
+              <span 
+                className="bg-gradient-to-r from-[#3B4D3A] to-[#2a3729] bg-clip-text text-transparent"
+              >
+                OSINTRA
+              </span>
+            </a>
 
-      {open && (
-        <div className="max-w-7xl mx-auto px-4 mt-3 pointer-events-auto">
-          <div className="mx-auto max-w-[1100px] bg-white/98 backdrop-blur-md border rounded-2xl" style={{ borderColor }}>
-            <div className="px-6 py-4 space-y-2">
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-1">
               {links.map((l) => (
-                <a key={l.href} href={l.href} className="block px-4 py-3 rounded-lg text-[#3B4D3A]">
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setActiveLink(l.href)}
+                  className="relative px-4 py-2 rounded-xl transition-all duration-300 font-medium group"
+                  style={{ 
+                    color: isActive(l.href) ? '#3B4D3A' : '#6E8BA3',
+                    fontWeight: isActive(l.href) ? '600' : '500'
+                  }}
+                >
                   {l.label}
+                  
+                  {/* Hover Effect */}
+                  <span 
+                    className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"
+                    style={{ 
+                      backgroundColor: 'rgba(232,220,195,0.2)'
+                    }}
+                  />
+                  
+                  {/* Active Indicator */}
+                  {isActive(l.href) && (
+                    <span 
+                      className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1/2 h-0.5 rounded-full"
+                      style={{ backgroundColor: '#3B4D3A' }}
+                    />
+                  )}
                 </a>
               ))}
+            </nav>
+
+            {/* Right Section */}
+            <div className="flex items-center gap-4">
+              {/* CTA Button - Desktop */}
               <a
                 href="/login"
-                className="block px-4 py-3 rounded-lg font-semibold text-center"
-                style={{ backgroundColor: '#E8DCC3', color: '#1E1E1E', marginTop: 8 }}
+                className="hidden lg:flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5"
+                style={{ 
+                  background: 'linear-gradient(135deg, #E8DCC3 0%, #d4c4a8 100%)',
+                  color: '#1E1E1E'
+                }}
               >
-                Masuk
+                <span>Masuk</span>
+                <ChevronRight className="w-4 h-4" />
               </a>
+
+              {/* Mobile Menu Button */}
+              <button
+                aria-label="Toggle menu"
+                onClick={() => setOpen((v) => !v)}
+                className="lg:hidden p-2 rounded-xl transition-all duration-300 hover:bg-gray-100"
+                style={{ color: '#3B4D3A' }}
+              >
+                {open ? <X size={24} /> : <Menu size={24} />}
+              </button>
             </div>
           </div>
         </div>
-      )}
-    </header>
+
+        {/* Mobile Menu */}
+        {open && (
+          <div 
+            className="lg:hidden border-t animate-slide-down"
+            style={{ 
+              backgroundColor: 'rgba(255,255,255,0.98)',
+              borderColor: 'rgba(232,220,195,0.3)'
+            }}
+          >
+            <div className="max-w-7xl mx-auto px-6 py-4 space-y-1">
+              {links.map((l, index) => (
+                <a 
+                  key={l.href} 
+                  href={l.href}
+                  onClick={() => {
+                    setActiveLink(l.href);
+                    setOpen(false);
+                  }}
+                  className="group relative block px-4 py-3 rounded-xl font-medium transition-all duration-300"
+                  style={{ 
+                    color: '#3B4D3A',
+                    backgroundColor: isActive(l.href) ? 'rgba(232,220,195,0.3)' : 'transparent',
+                    animationDelay: `${index * 50}ms`
+                  }}
+                >
+                  <span 
+                    className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"
+                    style={{ backgroundColor: 'rgba(232,220,195,0.2)' }}
+                  />
+                  
+                  <div className="flex items-center justify-between">
+                    <span>{l.label}</span>
+                    {isActive(l.href) && (
+                      <div 
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: '#3B4D3A' }}
+                      />
+                    )}
+                  </div>
+                </a>
+              ))}
+              
+              <div 
+                className="my-3 h-px"
+                style={{ backgroundColor: 'rgba(232,220,195,0.3)' }}
+              />
+              
+              <a
+                href="/login"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-xl"
+                style={{ 
+                  background: 'linear-gradient(135deg, #E8DCC3 0%, #d4c4a8 100%)',
+                  color: '#1E1E1E'
+                }}
+                onClick={() => setOpen(false)}
+              >
+                <span>Masuk</span>
+                <ChevronRight className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+        )}
+      </header>
+
+      <style>{`
+        @keyframes slide-down {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-slide-down {
+          animation: slide-down 0.3s ease-out forwards;
+        }
+      `}</style>
+    </>
   );
 };
 
