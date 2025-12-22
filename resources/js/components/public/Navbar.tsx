@@ -63,7 +63,7 @@ const Navbar: React.FC = () => {
               className="group flex items-center gap-3 font-bold text-xl md:text-2xl transition-transform duration-300 hover:scale-105"
             >
               <div 
-                className="w-10 h-10 rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-all duration-300 shadow-md"
+                className="w-10 h-10 rounded-xl flex items-center justify-center transform group transition-all duration-300 shadow-md"
                 style={{ 
                   background: 'linear-gradient(135deg, #3B4D3A 0%, #2a3729 100%)'
                 }}
@@ -73,7 +73,7 @@ const Navbar: React.FC = () => {
               <span 
                 className="bg-gradient-to-r from-[#3B4D3A] to-[#2a3729] bg-clip-text text-transparent"
               >
-                OSINTRA
+                OSVIS
               </span>
             </a>
 
