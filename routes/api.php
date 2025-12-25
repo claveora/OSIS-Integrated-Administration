@@ -24,6 +24,8 @@ Route::post('/messages', [MessageController::class, 'store']); // Public contact
 // Public data endpoints
 Route::get('/divisions', [DivisionController::class, 'index']);
 Route::get('/proker-media', [ProkerController::class, 'getAllMedia']);
+Route::get('/prokers/{proker}', [ProkerController::class, 'show']);
+Route::get('/prokers', [ProkerController::class, 'index']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -44,10 +46,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/users/search', [UserController::class, 'search']);
 
-    // Prokers
-    Route::apiResource('prokers', ProkerController::class);
+    // Prokers (protected routes)
+    Route::post('/prokers', [ProkerController::class, 'store']);
+    Route::put('/prokers/{proker}', [ProkerController::class, 'update']);
+    Route::patch('/prokers/{proker}', [ProkerController::class, 'update']);
+    Route::delete('/prokers/{proker}', [ProkerController::class, 'destroy']);
     Route::post('/prokers/{proker}/anggota', [ProkerController::class, 'addAnggota']);
     Route::delete('/prokers/{proker}/anggota/{anggota}', [ProkerController::class, 'removeAnggota']);
+    Route::post('/prokers/{proker}/media/upload', [ProkerController::class, 'uploadMedia']);
     Route::post('/prokers/{proker}/media', [ProkerController::class, 'addMedia']);
     Route::delete('/prokers/{proker}/media/{media}', [ProkerController::class, 'removeMedia']);
 

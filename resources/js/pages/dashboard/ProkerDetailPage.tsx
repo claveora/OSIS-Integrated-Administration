@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Head, router } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { ArrowLeft, Calendar, MapPin, Users, BookOpen, Edit, Trash2, Plus } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Users, BookOpen, Edit, Trash2, Plus, Image as ImageIcon, X, Upload } from 'lucide-react';
 import api from '@/lib/axios';
 import Swal from 'sweetalert2';
 import AddPanitiaModal from '@/components/dashboard/AddPanitiaModal';
 import EditDivisionsModal from '@/components/dashboard/EditDivisionsModal';
+import type { ProkerMedia } from '@/types';
 
 interface User {
     id: number;
@@ -45,7 +46,7 @@ interface Proker {
     status: 'planned' | 'ongoing' | 'done';
     divisions: Division[];
     anggota: ProkerAnggota[];
-    media: any[];
+    media: ProkerMedia[];
 }
 
 const ProkerDetailPage: React.FC = () => {
@@ -55,6 +56,9 @@ const ProkerDetailPage: React.FC = () => {
     const [divisions, setDivisions] = useState<Division[]>([]);
     const [showAddPanitiaModal, setShowAddPanitiaModal] = useState(false);
     const [showEditDivisionsModal, setShowEditDivisionsModal] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [selectedMedia, setSelectedMedia] = useState<ProkerMedia | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const prokerId = window.location.pathname.split('/').pop();
 
     useEffect(() => {
@@ -120,6 +124,94 @@ const ProkerDetailPage: React.FC = () => {
         }
     };
 
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !proker) return;
+
+        // Validate file type
+        const isImage = file.type.startsWith('image/');
+        const isVideo = file.type.startsWith('video/');
+        if (!isImage && !isVideo) {
+            Swal.fire('Error', 'File harus berupa gambar atau video', 'error');
+            return;
+        }
+
+        // Validate file size (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            Swal.fire('Error', 'Ukuran file maksimal 10MB', 'error');
+            return;
+        }
+
+        const caption = await Swal.fire({
+            title: 'Tambah Caption?',
+            input: 'text',
+            inputLabel: 'Caption (opsional)',
+            inputPlaceholder: 'Masukkan caption untuk media ini...',
+            showCancelButton: true,
+            confirmButtonText: 'Upload',
+            cancelButtonText: 'Batal',
+            inputValidator: () => null,
+        });
+
+        if (caption.isDismissed) {
+            e.target.value = '';
+            return;
+        }
+
+        setUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            if (caption.value) {
+                formData.append('caption', caption.value);
+            }
+
+            await api.post(`/prokers/${proker.id}/media/upload`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            Swal.fire('Berhasil!', 'Media berhasil diupload', 'success');
+            
+            // Refresh proker data
+            const response = await api.get(`/prokers/${proker.id}`);
+            setProker(response.data);
+        } catch (error: any) {
+            console.error(error);
+            Swal.fire('Error', error.response?.data?.message || 'Gagal upload media', 'error');
+        } finally {
+            setUploading(false);
+            e.target.value = '';
+        }
+    };
+
+    const handleDeleteMedia = async (media: ProkerMedia) => {
+        const result = await Swal.fire({
+            title: 'Hapus Media?',
+            text: 'Apakah Anda yakin ingin menghapus media ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6E8BA3',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+        });
+
+        if (result.isConfirmed && proker) {
+            try {
+                await api.delete(`/prokers/${proker.id}/media/${media.id}`);
+                Swal.fire('Terhapus!', 'Media berhasil dihapus', 'success');
+                
+                // Refresh proker data
+                const response = await api.get(`/prokers/${proker.id}`);
+                setProker(response.data);
+            } catch (error) {
+                Swal.fire('Gagal!', 'Gagal menghapus media', 'error');
+            }
+        }
+    };
+
     if (loading) {
         return (
             <DashboardLayout>
@@ -169,7 +261,7 @@ const ProkerDetailPage: React.FC = () => {
         <>
             <Head title={`${proker.title} - OSINTRA`} />
             <DashboardLayout>
-                <div className="space-y-6 p-6 osintra-content">
+                <div className="space-y-6 p-4 md:p-6 osintra-content">
                     {/* Back Button */}
                     <button
                         onClick={() => router.visit('/dashboard/prokers')}
@@ -377,6 +469,134 @@ const ProkerDetailPage: React.FC = () => {
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Gallery Section */}
+                    <div className="bg-white p-8 rounded-2xl shadow-lg">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                                <ImageIcon className="w-6 h-6 text-[#3B4D3A]" />
+                                <h2 className="text-2xl font-bold text-[#3B4D3A]">Galeri Dokumentasi</h2>
+                            </div>
+                            <div className="flex gap-2">
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*,video/*"
+                                    onChange={handleFileSelect}
+                                    className="hidden"
+                                />
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={uploading}
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#3B4D3A] text-white rounded-lg hover:bg-[#2d3a2d] transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {uploading ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                            Uploading...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Upload className="w-4 h-4" />
+                                            Tambah Media
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        {proker.media && proker.media.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                                {proker.media.map((media) => (
+                                    <div
+                                        key={media.id}
+                                        className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-pointer"
+                                        onClick={() => setSelectedMedia(media)}
+                                    >
+                                        {media.media_type === 'image' ? (
+                                            <img
+                                                src={media.media_url}
+                                                alt={media.caption || ''}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            />
+                                        ) : (
+                                            <video
+                                                src={media.media_url}
+                                                className="w-full h-full object-cover"
+                                                muted
+                                            />
+                                        )}
+                                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteMedia(media);
+                                                    }}
+                                                    className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                                                    title="Hapus"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {media.caption && (
+                                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                                                <p className="text-white text-sm truncate">{media.caption}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
+                                <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                                <p className="text-gray-500 mb-4">Belum ada media dokumentasi</p>
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="px-4 py-2 bg-[#3B4D3A] text-white rounded-lg hover:bg-[#2d3a2d] transition-all font-semibold"
+                                >
+                                    <Upload className="w-4 h-4 inline mr-2" />
+                                    Upload Media Pertama
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Media Preview Modal */}
+                    {selectedMedia && (
+                        <div
+                            className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+                            onClick={() => setSelectedMedia(null)}
+                        >
+                            <div className="max-w-4xl w-full max-h-[90vh] relative" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                    onClick={() => setSelectedMedia(null)}
+                                    className="absolute top-4 right-4 z-10 p-2 bg-white rounded-full hover:bg-gray-100 transition"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
+                                {selectedMedia.media_type === 'image' ? (
+                                    <img
+                                        src={selectedMedia.media_url}
+                                        alt={selectedMedia.caption || ''}
+                                        className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
+                                    />
+                                ) : (
+                                    <video
+                                        src={selectedMedia.media_url}
+                                        controls
+                                        className="w-full h-auto max-h-[90vh] rounded-lg"
+                                    />
+                                )}
+                                {selectedMedia.caption && (
+                                    <div className="mt-4 bg-white p-4 rounded-lg">
+                                        <p className="text-gray-800">{selectedMedia.caption}</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}

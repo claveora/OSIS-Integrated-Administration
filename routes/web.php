@@ -31,6 +31,14 @@ Route::get('/contact', function () {
     return Inertia::render('ContactPage');
 })->name('contact');
 
+Route::get('/prokers', function () {
+    return Inertia::render('PublicProkersPage');
+})->name('prokers');
+
+Route::get('/prokers/{id}', function ($id) {
+    return Inertia::render('PublicProkerDetailPage');
+})->name('prokers.detail');
+
 // Login Page - OSINTRA (Accessible without login)
 Route::get('/login', function () {
     // If already logged in, redirect to dashboard
@@ -165,6 +173,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
             'logs' => \App\Models\AuditLog::with('user')->orderBy('created_at', 'desc')->limit(100)->get()
         ]);
     })->name('dashboard.audit-logs');
+    
+    Route::get('/dashboard/gallery', function () {
+        return Inertia::render('dashboard/GalleryCmsPage', [
+            'auth' => ['user' => auth()->user()],
+        ]);
+    })->name('dashboard.gallery');
 });
 
 // Disable Laravel Fortify settings routes for now

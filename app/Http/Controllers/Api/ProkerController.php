@@ -8,6 +8,7 @@ use App\Models\ProkerAnggota;
 use App\Models\ProkerMedia;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProkerController extends Controller
 {
@@ -203,7 +204,44 @@ class ProkerController extends Controller
     }
 
     /**
-     * Add media to proker.
+     * Add media to proker (with file upload).
+     */
+    public function uploadMedia(Request $request, Proker $proker)
+    {
+        $validated = $request->validate([
+            'file' => 'required|file|mimes:jpeg,jpg,png,gif,webp,mp4,mov,avi|max:10240', // 10MB max
+            'caption' => 'nullable|string|max:500',
+        ]);
+
+        $file = $request->file('file');
+        $mediaType = str_starts_with($file->getMimeType(), 'image/') ? 'image' : 'video';
+        
+        // Store file in public/proker-media directory
+        // $path will be like: proker-media/filename.jpg
+        $path = $file->store('proker-media', 'public');
+        
+        // Construct the URL path that works with storage:link symlink
+        // The symlink connects public/storage -> storage/app/public
+        // So we need URL: /storage/proker-media/filename.jpg
+        $mediaUrl = '/storage/' . $path;
+
+        $media = ProkerMedia::create([
+            'proker_id' => $proker->id,
+            'media_type' => $mediaType,
+            'media_url' => $mediaUrl,
+            'caption' => $validated['caption'] ?? null,
+        ]);
+
+        AuditLog::log('add_proker_media', "Added media to proker: {$proker->title}");
+
+        return response()->json([
+            'media' => $media,
+            'message' => 'Media uploaded successfully',
+        ], 201);
+    }
+
+    /**
+     * Add media to proker (with URL).
      */
     public function addMedia(Request $request, Proker $proker)
     {
@@ -235,6 +273,14 @@ class ProkerController extends Controller
     {
         if ($media->proker_id !== $proker->id) {
             return response()->json(['message' => 'Media not found in this proker'], 404);
+        }
+
+        // Delete file from storage if it's stored locally
+        if (str_starts_with($media->media_url, '/storage/')) {
+            $filePath = str_replace('/storage/', '', $media->media_url);
+            if (Storage::disk('public')->exists($filePath)) {
+                Storage::disk('public')->delete($filePath);
+            }
         }
 
         $media->delete();
