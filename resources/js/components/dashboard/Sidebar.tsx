@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
-import { 
-    LayoutDashboard, 
-    Users, 
-    FolderKanban, 
-    Mail, 
-    DollarSign, 
-    Settings, 
+import {
+    LayoutDashboard,
+    Users,
+    FolderKanban,
+    Mail,
+    DollarSign,
+    Settings,
     UserCircle,
     LogOut,
     X,
@@ -27,8 +27,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
     const menuItems = [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', module: 'Dashboard' },
-    { name: 'Divisi', icon: Building2, path: '/dashboard/divisions', module: 'Divisions' },
-    { name: 'Posisi', icon: FileText, path: '/dashboard/positions', module: 'Positions' },
+        { name: 'Divisi', icon: Building2, path: '/dashboard/divisions', module: 'Divisions' },
+        { name: 'Posisi', icon: FileText, path: '/dashboard/positions', module: 'Positions' },
         { name: 'Pengguna', icon: Users, path: '/dashboard/users', module: 'Users' },
         { name: 'Program Kerja', icon: FolderKanban, path: '/dashboard/prokers', module: 'Prokers' },
         { name: 'Pesan', icon: Mail, path: '/dashboard/messages', module: 'Messages' },
@@ -71,9 +71,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
             {/* Sidebar */}
             <aside
-                className={`fixed top-0 left-0 h-full bg-[#3B4D3A] text-white w-72 transform transition-transform duration-300 z-50 shadow-2xl ${
-                    isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-                }`}
+                className={`fixed top-0 left-0 h-full bg-[#3B4D3A] text-white w-72 transform transition-transform duration-300 z-50 shadow-2xl ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+                    }`}
             >
                 <div className="flex flex-col h-full">
                     {/* Header (logo only to avoid duplicate title) */}
@@ -82,8 +81,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                             <div className="w-10 h-10 bg-[#E8DCC3] rounded-full flex items-center justify-center text-[#3B4D3A] font-bold text-lg shadow-lg">
                                 O
                             </div>
-                            <div className="hidden sm:block">
-                                <p className="text-sm text-[#E8DCC3]/90 font-semibold">OSINTRA</p>
+                            <div>
+                                <p className="text-sm text-[#E8DCC3]/90 font-semibold">OSVIS</p>
                                 <p className="text-xs text-[#E8DCC3]/60">Management Internal System</p>
                             </div>
                         </div>
@@ -103,16 +102,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                             {filteredMenuItems.map((item) => {
                                 const Icon = item.icon;
                                 const isActive = window.location.pathname === item.path;
-                                
+
                                 return (
                                     <li key={item.path}>
                                         <Link
                                             href={item.path}
-                                            className={`flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all duration-200 ${
-                                                isActive
+                                            className={`flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all duration-200 ${isActive
                                                     ? 'bg-[#E8DCC3] text-[#3B4D3A] shadow-md scale-105'
                                                     : 'text-[#E8DCC3]/90 hover:bg-[#4A5F49] hover:text-white hover:pl-6'
-                                            }`}
+                                                }`}
                                         >
                                             <Icon className="w-5 h-5 flex-shrink-0" />
                                             <span className="text-sm">{item.name}</span>

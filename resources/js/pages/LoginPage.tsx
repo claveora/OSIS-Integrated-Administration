@@ -39,7 +39,7 @@ const LoginPage = () => {
                 localStorage.setItem('auth_token', token);
                 // Set default header untuk request selanjutnya
                 api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                
+
                 // Simpan data user jika diperlukan
                 localStorage.setItem('user', JSON.stringify(user));
 
@@ -108,11 +108,11 @@ const LoginPage = () => {
                 {/* Logo/Header */}
                 <div className="text-center mb-8">
                     <div className="inline-block mb-4">
-                        <div className="w-20 h-25   flex items-center justify-center shadow-lg overflow-hidden">
-                            <img src={logo} alt="OSINTRA" className="w-full h-full object-cover" />
+                        <div className="w-20 h-25 flex items-center justify-center">
+                            <img src={logo} alt="OSINTRA" className="w-full h-full object-contain" />
                         </div>
                     </div>
-                    <h1 className="text-4xl font-bold text-[#3B4D3A] mb-2 tracking-tight">OSINTRA</h1>
+                    <h1 className="text-4xl font-bold text-[#3B4D3A] mb-2 tracking-tight">OSVIS</h1>
                 </div>
 
                 {/* Login Form Card */}
